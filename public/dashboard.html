@@ -1,0 +1,25 @@
+<h2>Dashboard</h2>
+<canvas id="chart" width="400" height="200"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function loadStats() {
+  const res = await fetch('/api/stats');
+  const data = await res.json();
+  
+  const ctx = document.getElementById('chart').getContext('2d');
+  const labels = data.bloodTypeCounts.map(x => x._id);
+  const counts = data.bloodTypeCounts.map(x => x.count);
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Blood Type Counts',
+        data: counts
+      }]
+    }
+  });
+}
+loadStats();
+</script>

@@ -11,19 +11,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
-
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Routes
 app.use('/api/donors', require('./routes/donors'));
 app.use('/api/requests', require('./routes/requests'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/stats', require('./routes/stats'));
 
-// Default route (optional)
+// Default route (optional home page)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
@@ -33,3 +32,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+
