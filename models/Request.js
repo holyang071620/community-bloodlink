@@ -28,7 +28,15 @@ const requestSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'Pending'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
-}, { timestamps: true });
+}, { collection: 'requests' });  // ✅ force correct collection
 
 module.exports = mongoose.model('Request', requestSchema);

@@ -15,21 +15,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000,  // 30 sec timeout
+    serverSelectionTimeoutMS: 30000,
+    dbName: 'bloodlinkDB',
 })
 .then(() => console.log('✅ MongoDB connected to bloodlinkDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// MongoDB connection events (optional but useful for debugging)
-mongoose.connection.on('connected', () => {
-    console.log('✅ Mongoose event: connected');
-});
-mongoose.connection.on('error', (err) => {
-    console.log('❌ Mongoose event: error', err);
-});
-mongoose.connection.on('disconnected', () => {
-    console.log('❌ Mongoose event: disconnected');
-});
+mongoose.connection.on('connected', () => console.log('✅ Mongoose event: connected'));
+mongoose.connection.on('error', err => console.log('❌ Mongoose event: error', err));
+mongoose.connection.on('disconnected', () => console.log('❌ Mongoose event: disconnected'));
 
 // API routes
 app.use('/api/donors', require('./routes/donors'));
@@ -43,6 +37,4 @@ app.get('/', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

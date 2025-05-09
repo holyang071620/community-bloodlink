@@ -5,34 +5,32 @@ const Request = require('../models/Request');
 
 router.get('/', async (req, res) => {
   try {
-    const donors = await Donor.find({}, 'bloodType').lean();
-    const requests = await Request.find({}, 'bloodType').lean();
-
     const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-    // Normalize donors
-    const normalizedDonors = donors.map(d => ({
-      ...d,
-      bloodType: d.bloodType === 'O' ? 'O+' : d.bloodType
-    }));
+    const donorCountsRaw = await Donor.aggregate([
+      { $group: { _id: '$bloodType', count: { $sum: 1 } } }
+    ]);
 
-    // Normalize requests
-    const normalizedRequests = requests.map(r => ({
-      ...r,
-      bloodType: r.bloodType === 'O' ? 'O+' : r.bloodType
-    }));
+    const requestCountsRaw = await Request.aggregate([
+      { $group: { _id: '$bloodType', count: { $sum: 1 } } }
+    ]);
 
-    const donorCounts = bloodTypes.map(
-      type => normalizedDonors.filter(d => d.bloodType === type).length
-    );
+    const donorCountsMap = donorCountsRaw.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
 
-    const requestCounts = bloodTypes.map(
-      type => normalizedRequests.filter(r => r.bloodType === type).length
-    );
+    const requestCountsMap = requestCountsRaw.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
+
+    const donorCounts = bloodTypes.map(bt => donorCountsMap[bt] || 0);
+    const requestCounts = bloodTypes.map(bt => requestCountsMap[bt] || 0);
 
     res.json({
-      totalDonors: donors.length,
-      totalRequests: requests.length,
+      totalDonors: donorCountsRaw.reduce((sum, item) => sum + item.count, 0),
+      totalRequests: requestCountsRaw.reduce((sum, item) => sum + item.count, 0),
       bloodTypes,
       donorCounts,
       requestCounts
