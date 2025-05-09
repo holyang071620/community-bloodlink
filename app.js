@@ -11,10 +11,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB connection (✅ removed deprecated options)
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('✅ MongoDB connected to bloodlinkDB'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
 // API routes
 app.use('/api/donors', require('./routes/donors'));
@@ -23,11 +26,11 @@ app.use('/api/stats', require('./routes/stats'));  // ✅ make sure this line ex
 
 // Serve frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
