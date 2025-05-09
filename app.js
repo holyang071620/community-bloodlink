@@ -11,10 +11,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB connection
+// MongoDB connection (✅ with 30 sec timeout, no extra bracket)
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 30000,  // 30 sec timeout
 })
 .then(() => console.log('✅ MongoDB connected to bloodlinkDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
