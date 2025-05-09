@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB connection (✅ with 30 sec timeout, no extra bracket)
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -20,10 +20,21 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('✅ MongoDB connected to bloodlinkDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
+// MongoDB connection events (optional but useful for debugging)
+mongoose.connection.on('connected', () => {
+    console.log('✅ Mongoose event: connected');
+});
+mongoose.connection.on('error', (err) => {
+    console.log('❌ Mongoose event: error', err);
+});
+mongoose.connection.on('disconnected', () => {
+    console.log('❌ Mongoose event: disconnected');
+});
+
 // API routes
 app.use('/api/donors', require('./routes/donors'));
 app.use('/api/requests', require('./routes/requests'));
-app.use('/api/stats', require('./routes/stats'));  // ✅ make sure this line exists
+app.use('/api/stats', require('./routes/stats'));
 
 // Serve frontend
 app.get('/', (req, res) => {

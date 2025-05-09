@@ -5,26 +5,22 @@ const Request = require('../models/Request');
 
 router.get('/', async (req, res) => {
   try {
-    const donors = await Donor.find({}, 'bloodType');
-    const requests = await Request.find({}, 'bloodType');
+    const donors = await Donor.find({}, 'bloodType').lean();
+    const requests = await Request.find({}, 'bloodType').lean();
 
     const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
     // Normalize donors
-    const normalizedDonors = donors.map(d => {
-      return {
-        ...d._doc,
-        bloodType: d.bloodType === 'O' ? 'O+' : d.bloodType
-      };
-    });
+    const normalizedDonors = donors.map(d => ({
+      ...d,
+      bloodType: d.bloodType === 'O' ? 'O+' : d.bloodType
+    }));
 
     // Normalize requests
-    const normalizedRequests = requests.map(r => {
-      return {
-        ...r._doc,
-        bloodType: r.bloodType === 'O' ? 'O+' : r.bloodType
-      };
-    });
+    const normalizedRequests = requests.map(r => ({
+      ...r,
+      bloodType: r.bloodType === 'O' ? 'O+' : r.bloodType
+    }));
 
     const donorCounts = bloodTypes.map(
       type => normalizedDonors.filter(d => d.bloodType === type).length
